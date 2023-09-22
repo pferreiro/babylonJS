@@ -3,6 +3,7 @@ const canvas = document.getElementById("renderCanvas"); // Get the canvas elemen
 const engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
 
 
+
 const createScene = async function () {
   const scene = new BABYLON.Scene(engine);
   const camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 0, 0), scene);
@@ -10,7 +11,12 @@ const createScene = async function () {
   camera.attachControl(canvas, true);
   const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
   light.intensity = 0.7;
-  // Built-in 'sphere' shape.
+
+  var groundMaterial = new BABYLON.StandardMaterial("ground", scene);
+  groundMaterial.specularColor = BABYLON.Color3.Black();
+  var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 5, height: 5 }, scene, false);
+  ground.material = groundMaterial;
+
   BABYLON.SceneLoader.ImportMesh(
     "",
     "https://firebasestorage.googleapis.com/v0/b/yes4eutests.appspot.com/o/centralcervejas%2Fars%2",
@@ -36,6 +42,7 @@ const createScene = async function () {
   var xr = await scene.createDefaultXRExperienceAsync({
     uiOptions: {
       sessionMode: "immersive-ar",
+      referenceSpaceType: "local-floor"
     },
     optionalFeatures: true
 
