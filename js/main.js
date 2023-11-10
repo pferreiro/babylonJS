@@ -3,7 +3,6 @@ const canvas = document.getElementById("renderCanvas"); // Get the canvas elemen
 const engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
 
 
-
 const createScene = async function () {
   const scene = new BABYLON.Scene(engine);
   const camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 0, 0), scene);
@@ -19,37 +18,50 @@ const createScene = async function () {
   // GUI
   var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
   var panel = new BABYLON.GUI.StackPanel();
+  const models = []
   advancedTexture.addControl(panel);
 
   var createButtons = function (object) {
-    var button = BABYLON.GUI.Button.CreateSimpleButton(object, object);
-    button.width = "150px"
-    button.height = "150px";
-    button.color = "white";
-    button.cornerRadius = 5;
-    button.background = "green";
-    button.top = "15px"
-    button.left = "15px"
-    button.horizontalAlignment = 0
-    button.verticalAlignment = 0
-    button.onPointerUpObservable.add(function () {
+    const addObjectButton = BABYLON.GUI.Button.CreateSimpleButton(object, object);
+    addObjectButton.width = "150px"
+    addObjectButton.height = "150px";
+    addObjectButton.color = "white";
+    addObjectButton.cornerRadius = 5;
+    addObjectButton.background = "green";
+    addObjectButton.top = "15px"
+    addObjectButton.left = "15px"
+    addObjectButton.horizontalAlignment = 0
+    addObjectButton.verticalAlignment = 0
+    addObjectButton.onPointerUpObservable.add(function () {
       BABYLON.SceneLoader.ImportMesh("", "assets/scenes/", object, scene, function (meshes) {
-        var pointerDragBehavior = new BABYLON.PointerDragBehavior({ dragPlaneNormal: new BABYLON.Vector3(0, 0.1, 0) });
-        pointerDragBehavior.useObjectOrientationForDragging = false;
         const model = meshes[0]
 
-        model.position = new BABYLON.Vector3(0, 0, 1)
-        model.rotation = BABYLON.Vector3.Zero()
-        model.addBehavior(pointerDragBehavior);
-        // console.log(model)
+        model.position = new BABYLON.Vector3(0, 0, 1);
+        model.rotation = BABYLON.Vector3.Zero();
+
+        models.push(model)
+
+        // var pointerDragBehavior = new BABYLON.PointerDragBehavior({ dragPlaneNormal: new BABYLON.Vector3(0, 0.1, 0) });
+        // pointerDragBehavior.useObjectOrientationForDragging = false;
+        // const model = meshes[0]
+
+        // model.position = new BABYLON.Vector3(0, 0, 1)
+        // model.rotation = BABYLON.Vector3.Zero()
+
+        // model.addBehavior(pointerDragBehavior);
       });
     });
-    panel.addControl(button);
+    panel.addControl(addObjectButton);
   }
 
   for (let i = 0; i < objects.length; i++) {
     createButtons(objects[i])
   }
+
+  var gizmoManager = new BABYLON.GizmoManager(scene)
+  gizmoManager.boundingBoxGizmoEnabled = true
+  gizmoManager.attachableMeshes = models
+
 
   var buttonCamera = BABYLON.GUI.Button.CreateSimpleButton('camera', '');
   buttonCamera.width = "50px"
