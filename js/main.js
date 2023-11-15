@@ -41,14 +41,10 @@ const createScene = async function () {
 
         models.push(model)
 
-        // var pointerDragBehavior = new BABYLON.PointerDragBehavior({ dragPlaneNormal: new BABYLON.Vector3(0, 0.1, 0) });
-        // pointerDragBehavior.useObjectOrientationForDragging = false;
-        // const model = meshes[0]
+        var pointerDragBehavior = new BABYLON.PointerDragBehavior({ dragPlaneNormal: new BABYLON.Vector3(0, 0.1, 0) });
+        pointerDragBehavior.useObjectOrientationForDragging = false;
 
-        // model.position = new BABYLON.Vector3(0, 0, 1)
-        // model.rotation = BABYLON.Vector3.Zero()
-
-        // model.addBehavior(pointerDragBehavior);
+        model.addBehavior(pointerDragBehavior);
       });
     });
     panel.addControl(addObjectButton);
@@ -58,23 +54,15 @@ const createScene = async function () {
     createButtons(objects[i])
   }
 
-  var gizmoManager = new BABYLON.GizmoManager(scene)
-  gizmoManager.boundingBoxGizmoEnabled = true
+  var gizmoManager = new BABYLON.GizmoManager(scene, 10)
+  gizmoManager.boundingBoxGizmoEnabled = false
+  gizmoManager.positionGizmoEnabled = false;
+  gizmoManager.rotationGizmoEnabled = true;
+  gizmoManager.gizmos.rotationGizmo.xGizmo.isEnabled = false;
+  gizmoManager.gizmos.rotationGizmo.zGizmo.isEnabled = false;
   gizmoManager.attachableMeshes = models
 
 
-  var buttonCamera = BABYLON.GUI.Button.CreateSimpleButton('camera', '');
-  buttonCamera.width = "50px"
-  buttonCamera.height = "50px";
-  buttonCamera.color = "white";
-  buttonCamera.cornerRadius = 50;
-  buttonCamera.bottom = "50px"
-  buttonCamera.horizontalAlignment = 2
-  buttonCamera.verticalAlignment = 1
-  buttonCamera.onPointerUpObservable.add(function () {
-    BABYLON.Tools.CreateScreenshotUsingRenderTarget(engine, camera, 400);
-  });
-  advancedTexture.addControl(buttonCamera);
 
   var xr = await scene.createDefaultXRExperienceAsync({
     uiOptions: {
@@ -84,6 +72,48 @@ const createScene = async function () {
     optionalFeatures: true
 
   });
+  // Wait for the session to start
+  // xr.baseExperience.sessionManager.onXRSessionInit.add((session) => {
+  //   var videoElement = xr.baseExperience.sessionManager._session.baseLayer.context.canvas;
+
+  //   var buttonCamera = BABYLON.GUI.Button.CreateSimpleButton('camera', '');
+  //   buttonCamera.width = "50px"
+  //   buttonCamera.height = "50px";
+  //   buttonCamera.color = "white";
+  //   buttonCamera.cornerRadius = 50;
+  //   buttonCamera.bottom = "50px"
+  //   buttonCamera.horizontalAlignment = 2
+  //   buttonCamera.verticalAlignment = 1
+  //   buttonCamera.onPointerUpObservable.add(function () {
+  //     var width = 1280; // should match your AR video feed's width
+  //     var height = 720; // should match your AR video feed's height
+
+  //     var screenshotCanvas = document.createElement('canvas');
+  //     screenshotCanvas.width = width;
+  //     screenshotCanvas.height = height;
+
+  //     var ctx = screenshotCanvas.getContext('2d');
+
+  //     // assuming videoElement is your AR video feed,
+  //     console.log("Canvas dimensions: ", canvas.width, canvas.height);
+  //     console.log("Video Element dimensions: ", videoElement.width, videoElement.height);
+  //     ctx.drawImage(videoElement, 0, 0, width, height);
+  //     ctx.drawImage(canvas, 0, 0, width, height);
+
+  //     var dataURL = screenshotCanvas.toDataURL("image/png");
+
+  //     console.log(dataURL); // Here's your screenshot's data URL, handle it as you wish
+
+  //     // If you want to download it directly:
+  //     var link = document.createElement('a');
+  //     link.download = 'screenshot.png';
+  //     link.href = dataURL;
+  //     link.click();
+
+  //     // BABYLON.Tools.CreateScreenshotUsingRenderTarget(engine, camera, 400);
+  //   });
+  //   advancedTexture.addControl(buttonCamera);
+  // });
 
   // assetsManager.load();
   const fm = xr.baseExperience.featuresManager
@@ -101,8 +131,5 @@ scene.then(_scene => {
     }
   });
 })
-// engine.runRenderLoop(function () {
-//   scene.render();
-// });
-// Watch for browser/canvas resize events
+
 window.addEventListener("resize", function () { engine.resize(); });
