@@ -2,6 +2,19 @@
 const canvas = document.getElementById("renderCanvas"); // Get the canvas element
 const engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
 
+const takeScreenshot = function () {
+  engine.onEndFrameObservable.addOnce(() => {
+    const canvas = engine.getRenderingCanvas();
+    const dataUrl = canvas.toDataURL("image/png");
+
+    // Create an 'a' element
+    const link = document.createElement('a');
+    link.download = 'screenshot.png';
+    link.href = dataUrl;
+    // Use the 'a' element to download the image
+    link.click();
+  });
+};
 
 const createScene = async function () {
   const scene = new BABYLON.Scene(engine);
@@ -13,7 +26,7 @@ const createScene = async function () {
   // var assetsManager = new BABYLON.AssetsManager(scene);
   scene.createDefaultCameraOrLight(true, true, true);
   scene.createDefaultEnvironment();
-  var objects = ['19 Heineken Chapeu.glb', '20 21 Heineken Esplanada.glb', '23 Heineken Bidon.glb', '25 Heineken Coluna.glb']
+  var objects = ['12 Sagres Quadros.glb', '19 Heineken Chapeu.glb', '20 21 Heineken Esplanada.glb', '23 Heineken Bidon.glb', '25 Heineken Coluna.glb']
 
   // GUI
   var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -62,8 +75,6 @@ const createScene = async function () {
   gizmoManager.gizmos.rotationGizmo.zGizmo.isEnabled = false;
   gizmoManager.attachableMeshes = models
 
-
-
   var xr = await scene.createDefaultXRExperienceAsync({
     uiOptions: {
       sessionMode: "immersive-ar",
@@ -72,50 +83,19 @@ const createScene = async function () {
     optionalFeatures: true
 
   });
-  // Wait for the session to start
-  // xr.baseExperience.sessionManager.onXRSessionInit.add((session) => {
-  //   var videoElement = xr.baseExperience.sessionManager._session.baseLayer.context.canvas;
 
-  //   var buttonCamera = BABYLON.GUI.Button.CreateSimpleButton('camera', '');
-  //   buttonCamera.width = "50px"
-  //   buttonCamera.height = "50px";
-  //   buttonCamera.color = "white";
-  //   buttonCamera.cornerRadius = 50;
-  //   buttonCamera.bottom = "50px"
-  //   buttonCamera.horizontalAlignment = 2
-  //   buttonCamera.verticalAlignment = 1
-  //   buttonCamera.onPointerUpObservable.add(function () {
-  //     var width = 1280; // should match your AR video feed's width
-  //     var height = 720; // should match your AR video feed's height
+  const screenshotBtn = BABYLON.GUI.Button.CreateSimpleButton("screenshotBtn", "Take Screenshot");
+  screenshotBtn.width = 0.2;
+  screenshotBtn.height = "40px";
+  screenshotBtn.color = "white";
+  screenshotBtn.background = "black";
+  advancedTexture.addControl(screenshotBtn);
 
-  //     var screenshotCanvas = document.createElement('canvas');
-  //     screenshotCanvas.width = width;
-  //     screenshotCanvas.height = height;
+  screenshotBtn.onPointerUpObservable.add(() => {
+    takeScreenshot();
+  });
 
-  //     var ctx = screenshotCanvas.getContext('2d');
 
-  //     // assuming videoElement is your AR video feed,
-  //     console.log("Canvas dimensions: ", canvas.width, canvas.height);
-  //     console.log("Video Element dimensions: ", videoElement.width, videoElement.height);
-  //     ctx.drawImage(videoElement, 0, 0, width, height);
-  //     ctx.drawImage(canvas, 0, 0, width, height);
-
-  //     var dataURL = screenshotCanvas.toDataURL("image/png");
-
-  //     console.log(dataURL); // Here's your screenshot's data URL, handle it as you wish
-
-  //     // If you want to download it directly:
-  //     var link = document.createElement('a');
-  //     link.download = 'screenshot.png';
-  //     link.href = dataURL;
-  //     link.click();
-
-  //     // BABYLON.Tools.CreateScreenshotUsingRenderTarget(engine, camera, 400);
-  //   });
-  //   advancedTexture.addControl(buttonCamera);
-  // });
-
-  // assetsManager.load();
   const fm = xr.baseExperience.featuresManager
   const xrBackgroundRemover = fm.enableFeature(BABYLON.WebXRBackgroundRemover.Name);
   return scene;
